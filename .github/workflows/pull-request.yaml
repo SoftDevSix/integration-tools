@@ -5,6 +5,44 @@ on:
     types: [opened, closed, reopened, synchronize]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Build with Gradle
+        run: cd Argos && ./gradlew build
+
+      - name: Send PR Failed Notification to Teams
+        if: failure()
+        run: |
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "D50000",
+            "summary": "Pull Request Build Failed",
+            "sections": [{
+                "activityTitle": "Pull Request Build Failed",
+                "activitySubtitle": "Failed for: '${{ github.event.pull_request.user.login }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
+
   notify-teams:
     runs-on: ubuntu-latest
     steps:
@@ -150,29 +188,6 @@ jobs:
                 }, {
                     "name": "Label(s)",
                     "value": "'"${labels}"'"
-                }]
-            }]
-          }' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
-
-      - name: Send PR Failed Notification to Teams
-        if: failure()
-        run: |
-          curl -X POST -H "Content-type: application/json" \
-          --data '{
-            "@type": "MessageCard",
-            "@context": "http://schema.org/extensions",
-            "themeColor": "D50000",
-            "summary": "Pull Request Build Failed",
-            "sections": [{
-                "activityTitle": "Pull Request Build Failed",
-                "activitySubtitle": "Failed for: '${{ github.event.pull_request.user.login }}'",
-                "facts": [{
-                    "name": "Title",
-                    "value": "${{ github.event.pull_request.title }}"
-                }, {
-                    "name": "URL",
-                    "value": "${{ github.event.pull_request.html_url }}"
                 }]
             }]
           }' \
