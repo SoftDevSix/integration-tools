@@ -26,6 +26,14 @@ jobs:
       - name: Build with Gradle
         run: cd Argos && ./gradlew build
 
+      - name: Get PR Information
+        id: pr_info
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+          echo "user=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
+
       - name: Send Build Failed Notification to Teams
         if: failure()
         run: |
@@ -37,13 +45,13 @@ jobs:
             "summary": "Pull Request Build Failed",
             "sections": [{
                 "activityTitle": "Pull Request Build Failed",
-                "activitySubtitle": "Failed for: '${{ github.event.pull_request.user.login }}'",
+                "activitySubtitle": "Failed for: '${{ env.user }}'",
                 "facts": [{
                     "name": "Title",
-                    "value": "${{ github.event.pull_request.title }}"
+                    "value": "${{ env.title }}"
                 }, {
                     "name": "URL",
-                    "value": "${{ github.event.pull_request.html_url }}"
+                    "value": "${{ env.url }}"
                 }]
             }]
           }' \
@@ -186,9 +194,6 @@ jobs:
                 }, {
                     "name": "Deleted Lines",
                     "value": "${{ github.event.pull_request.deletions }}"
-                }, {
-                    "name": "Opened by",
-                    "value": "${{ github.event.pull_request.user.login }}"
                 }, {
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
