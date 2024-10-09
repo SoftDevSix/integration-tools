@@ -1,0 +1,26 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - chore/no-ref/implement-teams-card-information-failed
+  pull_request:
+    branches:
+      - chore/no-ref/implement-teams-card-information-failed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Build with Gradle
+        run: ./gradlew build
