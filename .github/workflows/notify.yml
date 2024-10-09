@@ -4,6 +4,7 @@ on:
   pull_request:
     types: [opened, closed]
 
+
 jobs:
   notify-teams:
     runs-on: ubuntu-latest
