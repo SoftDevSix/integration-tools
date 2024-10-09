@@ -156,7 +156,7 @@ jobs:
           https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
 
       - name: Send PR Failed Notification to Teams
-        if: always()
+        if: failure()
         run: |
           curl -X POST -H "Content-type: application/json" \
           --data '{
