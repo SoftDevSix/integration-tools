@@ -1,68 +1,12 @@
-name: CI Pipeline
+name: Notify Teams on PR Events
 
 on:
-  push:
-    branches:
-      - chore/no-ref/implement-teams-card-information-failed
   pull_request:
-    branches:
-      - chore/no-ref/implement-teams-card-information-failed
     types: [opened, closed, reopened, synchronize]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-
-      - name: Get PR Information
-        id: pr_info
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-          echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
-          echo "user=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
-
-      - name: Build with Gradle
-        run: cd Argos && ./gradlew build
-
   notify-teams:
     runs-on: ubuntu-latest
-    needs: build
-    if: failure() && github.event_name == 'pull_request' # Se ejecuta si el build falla
-    steps:
-      - name: Send Build Failed Notification to Teams
-        run: |
-          curl -X POST -H "Content-type: application/json" \
-          --data '{
-            "@type": "MessageCard",
-            "@context": "http://schema.org/extensions",
-            "themeColor": "D50000",
-            "summary": "Pull Request Build Failed",
-            "sections": [{
-                "activityTitle": "Pull Request Build Failed",
-                "activitySubtitle": "Failed for: '${{ env.user }}'",
-                "facts": [{
-                    "name": "Title",
-                    "value": "${{ env.title }}"
-                }, {
-                    "name": "URL",
-                    "value": "${{ env.url }}"
-                }]
-            }]
-          }' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
-
-  notify-on-pr:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Send PR Opened Notification to Teams
         if: github.event.action == 'opened'
@@ -189,11 +133,46 @@ jobs:
                     "name": "URL",
                     "value": "${{ github.event.pull_request.html_url }}"
                 }, {
+                    "name": "Reason",
+                    "value": "Closed without merging"
+                }, {
+                    "name": "Added Lines",
+                    "value": "${{ github.event.pull_request.additions }}"
+                }, {
+                    "name": "Deleted Lines",
+                    "value": "${{ github.event.pull_request.deletions }}"
+                }, {
+                    "name": "Opened by",
+                    "value": "${{ github.event.pull_request.user.login }}"
+                }, {
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
                 }, {
                     "name": "Label(s)",
                     "value": "'"${labels}"'"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
+
+      - name: Send PR Failed Notification to Teams
+        if: failure()
+        run: |
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "D50000",
+            "summary": "Pull Request Build Failed",
+            "sections": [{
+                "activityTitle": "Pull Request Build Failed",
+                "activitySubtitle": "Failed for: '${{ github.event.pull_request.user.login }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
                 }]
             }]
           }' \
