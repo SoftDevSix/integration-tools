@@ -23,6 +23,18 @@ jobs:
       - name: Send PR Failed Notification to Teams
         if: failure()
         run: |
+          if [[ ${{ github.event.pull_request.requested_reviewers }} ]]; then
+            reviewers="${{ join(github.event.pull_request.requested_reviewers.*.login, ', ') }}"
+          else
+            reviewers="No reviewers assigned"
+          fi
+          
+          if [[ ${{ github.event.pull_request.labels }} ]]; then
+            labels="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          else
+            labels="No labels assigned"
+          fi
+          
           curl -X POST -H "Content-type: application/json" \
           --data '{
             "@type": "MessageCard",
@@ -38,6 +50,21 @@ jobs:
                 }, {
                     "name": "URL",
                     "value": "${{ github.event.pull_request.html_url }}"
+                }, {
+                    "name": "Added Lines",
+                    "value": "${{ github.event.pull_request.additions }}"
+                }, {
+                    "name": "Deleted Lines",
+                    "value": "${{ github.event.pull_request.deletions }}"
+                }, {
+                    "name": "Opened by",
+                    "value": "${{ github.event.pull_request.user.login }}"
+                }, {
+                    "name": "Reviewer(s)",
+                    "value": "'"${reviewers}"'"
+                }, {
+                    "name": "Label(s)",
+                    "value": "'"${labels}"'"
                 }]
             }]
           }' \
