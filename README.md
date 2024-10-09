@@ -1,2 +1,2 @@
 # integration-tools
-Slack Test
+Slack Tests
