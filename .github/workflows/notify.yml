@@ -47,6 +47,7 @@ jobs:
             **Reason**: Closed without merging\n \
             **Added Lines**: ${{ github.event.pull_request.additions }}\n \
             **Deleted Lines**: ${{ github.event.pull_request.deletions }}\n \
+            **Opened by**: ${{ github.event.pull_request.user.login }}\n \
             **Reviewers**: ${{ github.event.pull_request.requested_reviewers.*.login }}\n \
             **Labels**: ${{ github.event.pull_request.labels.*.name }}"}' \
           https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
