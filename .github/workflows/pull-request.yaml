@@ -36,6 +36,7 @@ jobs:
   notify-teams:
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'pull_request' || github.event_name == 'push' # Se ejecuta en PR y push
     steps:
       - name: Send Build Failed Notification to Teams
         if: failure() && github.event_name == 'pull_request'
@@ -184,15 +185,6 @@ jobs:
                 }, {
                     "name": "URL",
                     "value": "${{ github.event.pull_request.html_url }}"
-                }, {
-                    "name": "Reason",
-                    "value": "Closed without merging"
-                }, {
-                    "name": "Added Lines",
-                    "value": "${{ github.event.pull_request.additions }}"
-                }, {
-                    "name": "Deleted Lines",
-                    "value": "${{ github.event.pull_request.deletions }}"
                 }, {
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
