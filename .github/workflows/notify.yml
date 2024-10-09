@@ -12,20 +12,52 @@ jobs:
         if: github.event.action == 'opened'
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "A new Pull Request has been opened: ${{ github.event.pull_request.html_url }}"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
+          --data '{
+            "text": "Pull Request Opened by: **${{ github.event.pull_request.user.login }}**\n \
+            **Title**: ${{ github.event.pull_request.title }}\n \
+            **URL**: ${{ github.event.pull_request.html_url }}\n \
+            **Added Lines**: ${{ github.event.pull_request.additions }}\n \
+            **Deleted Lines**: ${{ github.event.pull_request.deletions }}\n \
+            **Reviewers**: ${{ github.event.pull_request.requested_reviewers.*.login }}\n \
+            **Labels**: ${{ github.event.pull_request.labels.*.name }}"}' \
+          https://your-webhook-url
 
       - name: Send PR Merged Notification to Teams
         if: github.event.pull_request.merged == true
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "A Pull Request has been merged: ${{ github.event.pull_request.html_url }}"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
+          --data '{
+            "text": "Pull Request Merged by: **${{ github.event.pull_request.merged_by.login }}**\n \
+            **Title**: ${{ github.event.pull_request.title }}\n \
+            **URL**: ${{ github.event.pull_request.html_url }}\n \
+            **Added Lines code**: ${{ github.event.pull_request.additions }}\n \
+            **Deleted Lines code**: ${{ github.event.pull_request.deletions }}\n \
+            **Reviewers**: ${{ github.event.pull_request.requested_reviewers.*.login }}\n \
+            **Labels**: ${{ github.event.pull_request.labels.*.name }}"}' \
+          https://your-webhook-url
+
+      - name: Send PR Closed without Merge Notification to Teams
+        if: github.event.action == 'closed' && github.event.pull_request.merged == false
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{
+            "text": "Pull Request Closed by: **${{ github.actor }}**\n \
+            **Title**: ${{ github.event.pull_request.title }}\n \
+            **URL**: ${{ github.event.pull_request.html_url }}\n \
+            **Reason**: Closed without merging\n \
+            **Added Lines**: ${{ github.event.pull_request.additions }}\n \
+            **Deleted Lines**: ${{ github.event.pull_request.deletions }}\n \
+            **Reviewers**: ${{ github.event.pull_request.requested_reviewers.*.login }}\n \
+            **Labels**: ${{ github.event.pull_request.labels.*.name }}"}' \
+          https://your-webhook-url
 
       - name: Send PR Failed Notification to Teams
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "The Pull Request build has failed: ${{ github.event.pull_request.html_url }}"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
-          
+          --data '{
+            "text": "The Pull Request build has failed for: **${{ github.event.pull_request.user.login }}**\n \
+            **Title**: ${{ github.event.pull_request.title }}\n \
+            **URL**: ${{ github.event.pull_request.html_url }}\n \
+            **Reviewers**: ${{ github.event.pull_request.requested_reviewers.*.login }}"}' \
+          https://your-webhook-url
