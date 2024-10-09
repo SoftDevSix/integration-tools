@@ -2,8 +2,7 @@ name: Notify Teams on PR Events
 
 on:
   pull_request:
-    types: [opened, closed]
-
+    types: [opened, closed, reopened, synchronize]
 
 jobs:
   notify-teams:
@@ -13,26 +12,26 @@ jobs:
         if: github.event.action == 'opened'
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "Pull Request Opened by: '${{ github.event.pull_request.user.login }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'\\nAdded Lines: '${{ github.event.pull_request.additions }}'\\nDeleted Lines: '${{ github.event.pull_request.deletions }}'\\nReviewer: '${{ github.event.pull_request.requested_reviewers }}'"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
-
-      - name: Send PR Merged Notification to Teams
-        if: github.event.pull_request.merged == true
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "Pull Request Merged by: '${{ github.event.pull_request.merged_by.login }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'\\nAdded Lines: '${{ github.event.pull_request.additions }}'\\nDeleted Lines: '${{ github.event.pull_request.deletions }}'\\nReviewer: '${{ github.event.pull_request.requested_reviewers }}'"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
+          --data '{"text": "Pull Request Opened by: '${{ github.event.pull_request.user.login }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'"}' \
+          YOUR_WEBHOOK_URL
 
       - name: Send PR Closed Notification to Teams
         if: github.event.action == 'closed'
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "Pull Request Closed by: '${{ github.actor }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'\\nReason: Closed without merging\\nAdded Lines: '${{ github.event.pull_request.additions }}'\\nDeleted Lines: '${{ github.event.pull_request.deletions }}'\\nOpened by: '${{ github.event.pull_request.user.login }}'\\nReviewer: '${{ github.event.pull_request.requested_reviewers }}'"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1        
+          --data '{"text": "Pull Request Closed by: '${{ github.actor }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'"}' \
+          YOUR_WEBHOOK_URL
 
-      - name: Send PR Failed Notification to Teams
-        if: failure()
+      - name: Send PR Reopened Notification to Teams
+        if: github.event.action == 'reopened'
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text": "The Pull Request build has failed for: '${{ github.event.pull_request.user.login }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'"}' \
-          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/14f284fb686149c7b7f5917c19c54ba9/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Lb9S-y1vrHp4ELFfrwAA69TyCH5wKdUeMhoQ7WTRTWA1
+          --data '{"text": "Pull Request Reopened by: '${{ github.actor }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'"}' \
+          YOUR_WEBHOOK_URL
+
+      - name: Send PR Updated Notification to Teams
+        if: github.event.action == 'synchronize'
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text": "Pull Request Updated by: '${{ github.actor }}'\\nTitle: '${{ github.event.pull_request.title }}'\\nURL: '${{ github.event.pull_request.html_url }}'"}' \
+          YOUR_WEBHOOK_URL
