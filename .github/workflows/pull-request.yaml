@@ -36,10 +36,9 @@ jobs:
   notify-teams:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request' || github.event_name == 'push' # Se ejecuta en PR y push
+    if: failure() && github.event_name == 'pull_request' # Se ejecuta si el build falla
     steps:
       - name: Send Build Failed Notification to Teams
-        if: failure() && github.event_name == 'pull_request'
         run: |
           curl -X POST -H "Content-type: application/json" \
           --data '{
@@ -61,6 +60,10 @@ jobs:
           }' \
           https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
 
+  notify-on-pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
       - name: Send PR Opened Notification to Teams
         if: github.event.action == 'opened'
         run: |
