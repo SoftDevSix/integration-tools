@@ -48,7 +48,7 @@ jobs:
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
                 }, {
-                    "name": "Labels",
+                    "name": "Label(s)",
                     "value": "'"${labels}"'"
                 }]
             }]
@@ -95,7 +95,7 @@ jobs:
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
                 }, {
-                    "name": "Labels",
+                    "name": "Label(s)",
                     "value": "'"${labels}"'"
                 }]
             }]
@@ -148,7 +148,7 @@ jobs:
                     "name": "Reviewer(s)",
                     "value": "'"${reviewers}"'"
                 }, {
-                    "name": "Labels",
+                    "name": "Label(s)",
                     "value": "'"${labels}"'"
                 }]
             }]
