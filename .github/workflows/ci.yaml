@@ -1,0 +1,179 @@
+name: Notify Teams on PR Events
+
+on:
+  pull_request:
+    types: [opened, closed, reopened, synchronize]
+
+jobs:
+  notify-teams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send PR Opened Notification to Teams
+        if: github.event.action == 'opened'
+        run: |
+          if [[ ${{ github.event.pull_request.requested_reviewers }} ]]; then
+            reviewers="${{ join(github.event.pull_request.requested_reviewers.*.login, ', ') }}"
+          else
+            reviewers="No reviewers assigned"
+          fi
+          
+          if [[ ${{ github.event.pull_request.labels }} ]]; then
+            labels="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          else
+            labels="No labels assigned"
+          fi
+
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "0076D7",
+            "summary": "Pull Request Opened",
+            "sections": [{
+                "activityTitle": "Pull Request Opened",
+                "activitySubtitle": "Opened by: '${{ github.event.pull_request.user.login }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
+                }, {
+                    "name": "Added Lines",
+                    "value": "${{ github.event.pull_request.additions }}"
+                }, {
+                    "name": "Deleted Lines",
+                    "value": "${{ github.event.pull_request.deletions }}"
+                }, {
+                    "name": "Reviewer(s)",
+                    "value": "'"${reviewers}"'"
+                }, {
+                    "name": "Label(s)",
+                    "value": "'"${labels}"'"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
+
+      - name: Send PR Merged Notification to Teams
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        run: |
+          if [[ ${{ github.event.pull_request.requested_reviewers }} ]]; then
+            reviewers="${{ join(github.event.pull_request.requested_reviewers.*.login, ', ') }}"
+          else
+            reviewers="No reviewers assigned"
+          fi
+          
+          if [[ ${{ github.event.pull_request.labels }} ]]; then
+            labels="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          else
+            labels="No labels assigned"
+          fi
+
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "4CAF50",
+            "summary": "Pull Request Merged",
+            "sections": [{
+                "activityTitle": "Pull Request Merged",
+                "activitySubtitle": "Merged by: '${{ github.event.pull_request.merged_by.login }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
+                }, {
+                    "name": "Added Lines",
+                    "value": "${{ github.event.pull_request.additions }}"
+                }, {
+                    "name": "Deleted Lines",
+                    "value": "${{ github.event.pull_request.deletions }}"
+                }, {
+                    "name": "Reviewer(s)",
+                    "value": "'"${reviewers}"'"
+                }, {
+                    "name": "Label(s)",
+                    "value": "'"${labels}"'"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
+
+      - name: Send PR Closed Notification to Teams
+        if: github.event.action == 'closed' && github.event.pull_request.merged == false
+        run: |
+          if [[ ${{ github.event.pull_request.requested_reviewers }} ]]; then
+            reviewers="${{ join(github.event.pull_request.requested_reviewers.*.login, ', ') }}"
+          else
+            reviewers="No reviewers assigned"
+          fi
+          
+          if [[ ${{ github.event.pull_request.labels }} ]]; then
+            labels="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          else
+            labels="No labels assigned"
+          fi
+
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "FF9800",
+            "summary": "Pull Request Closed",
+            "sections": [{
+                "activityTitle": "Pull Request Closed",
+                "activitySubtitle": "Closed by: '${{ github.actor }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
+                }, {
+                    "name": "Reason",
+                    "value": "Closed without merging"
+                }, {
+                    "name": "Added Lines",
+                    "value": "${{ github.event.pull_request.additions }}"
+                }, {
+                    "name": "Deleted Lines",
+                    "value": "${{ github.event.pull_request.deletions }}"
+                }, {
+                    "name": "Opened by",
+                    "value": "${{ github.event.pull_request.user.login }}"
+                }, {
+                    "name": "Reviewer(s)",
+                    "value": "'"${reviewers}"'"
+                }, {
+                    "name": "Label(s)",
+                    "value": "'"${labels}"'"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
+
+      - name: Send PR Failed Notification to Teams
+        if: failure()
+        run: |
+          curl -X POST -H "Content-type: application/json" \
+          --data '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "themeColor": "D50000",
+            "summary": "Pull Request Build Failed",
+            "sections": [{
+                "activityTitle": "Pull Request Build Failed",
+                "activitySubtitle": "Failed for: '${{ github.event.pull_request.user.login }}'",
+                "facts": [{
+                    "name": "Title",
+                    "value": "${{ github.event.pull_request.title }}"
+                }, {
+                    "name": "URL",
+                    "value": "${{ github.event.pull_request.html_url }}"
+                }]
+            }]
+          }' \
+          https://jalafoundation.webhook.office.com/webhookb2/fb5ff65e-a111-473c-94a8-f007ade190b5@1f9b1311-c757-4228-b0e2-7d4ade7932aa/IncomingWebhook/ca4136655b5a4a65845fce85eb0aa5cf/4a7791ac-3077-4917-a0d1-4d1b3b5537a3/V2Oal8Aj5KqRlXVCll-Pky6RDVADlZIhMYU716aan5hL81
