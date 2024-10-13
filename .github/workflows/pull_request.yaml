@@ -54,7 +54,7 @@ jobs:
                 }]
             }]
           }' \
-          https://prod-03.westus.logic.azure.com:443/workflows/d380d1c496354d14981b088a9586ba59/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ukdu_OxO-D6FbIu78BTmRRnDLHEFSwgpvbzF2gMu-X4
+          https://prod-33.westus.logic.azure.com:443/workflows/08af13e27d7e473c8fa4ff3468e99428/triggers/manual/paths/invoke?api-version=2016-06-01
 
       - name: Send PR Merged Notification to Teams
         if: github.event.action == 'closed' && github.event.pull_request.merged == true
@@ -101,7 +101,7 @@ jobs:
                 }]
             }]
           }' \
-          https://prod-03.westus.logic.azure.com:443/workflows/d380d1c496354d14981b088a9586ba59/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ukdu_OxO-D6FbIu78BTmRRnDLHEFSwgpvbzF2gMu-X4
+          https://prod-33.westus.logic.azure.com:443/workflows/08af13e27d7e473c8fa4ff3468e99428/triggers/manual/paths/invoke?api-version=2016-06-01
 
       - name: Send PR Closed Notification to Teams
         if: github.event.action == 'closed' && github.event.pull_request.merged == false
@@ -154,4 +154,4 @@ jobs:
                 }]
             }]
           }' \
-          https://prod-03.westus.logic.azure.com:443/workflows/d380d1c496354d14981b088a9586ba59/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Ukdu_OxO-D6FbIu78BTmRRnDLHEFSwgpvbzF2gMu-X4
+          https://prod-33.westus.logic.azure.com:443/workflows/08af13e27d7e473c8fa4ff3468e99428/triggers/manual/paths/invoke?api-version=2016-06-01
